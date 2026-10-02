@@ -3,7 +3,6 @@
 //
 module;
 #include <string>
-#include <span>
 #include <vector>
 #include <sstream>
 export module parser;
@@ -11,33 +10,37 @@ export module parser;
 // contains everything needed for parsing user input
 namespace parser
 {
-    export class CommandTable
+    static void remove_quotes(std::string& str)
     {
-    public:
-        explicit CommandTable(const std::string& input)
-        {
-            std::stringstream ss(input);
-            std::getline(ss, program, ' ');
+        std::erase_if(str, [](const char c) { return c == '"' || c == '\''; });
+    }
 
-            std::string arg;
-            while (std::getline(ss, arg, ' '))
-            {
-                args.push_back(arg);
-            }
-        };
+    static std::vector<std::string> tokenize(const std::string& input)
+    {
+        std::istringstream istream(input);
+        std::vector<std::string> tokens;
 
-        [[nodiscard]] std::string get_program() const
+        std::string token;
+        while (istream >> token)
         {
-            return program;
+            remove_quotes(token);
+            tokens.push_back(token);
         }
 
-        [[nodiscard]] std::span<const std::string> get_args() const
-        {
-            return args;
-        }
+        return tokens;
+    }
 
-    private:
-        std::string program;
-        std::vector<std::string> args;
-    };
+    // converts input into an array of c_strings
+    export std::vector<char*> parse_input(const std::string& input)
+    {
+        std::vector<char*> c_args;
+
+        for (auto tokens = tokenize(input); auto& token : tokens)
+        {
+            c_args.push_back(token.data());
+        }
+        c_args.push_back(nullptr); // must be null terminated
+
+        return c_args;
+    }
 }
