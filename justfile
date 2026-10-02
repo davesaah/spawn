@@ -12,3 +12,7 @@ generate-debug:
 
 generate-release:
     @cmake -S . -B cmake-build-release -G Ninja -D CMAKE_BUILD_TYPE=Release
+
+install:
+    @strip cmake-build-release/spawn
+    @cp cmake-build-release/spawn ~/.local/bin

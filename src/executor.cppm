@@ -10,18 +10,21 @@ export module executor;
 
 namespace executor
 {
-    // converts input into an array of c_strings
-    static std::vector<char*> get_exec_array(const std::vector<std::string>& cmd_tokens)
+    namespace
     {
-        std::vector<char*> c_args;
-
-        for (const auto& token : cmd_tokens)
+        // converts input into an array of c_strings
+        std::vector<char*> get_exec_array(const std::vector<std::string>& cmd_tokens)
         {
-            c_args.push_back(const_cast<char*>(token.data()));
-        }
-        c_args.push_back(nullptr); // must be null terminated
+            std::vector<char*> c_args;
 
-        return c_args;
+            for (const auto& token : cmd_tokens)
+            {
+                c_args.push_back(const_cast<char*>(token.data()));
+            }
+            c_args.push_back(nullptr); // must be null terminated
+
+            return c_args;
+        }
     }
 
     export void execute(const std::vector<std::string>& cmd_tokens)
@@ -33,11 +36,10 @@ namespace executor
             return;
         }
 
-        const auto exec_arr = get_exec_array(cmd_tokens);
-
+        // child process is available
         if (pid == 0)
         {
-            // child process is available
+            const auto exec_arr = get_exec_array(cmd_tokens);
             execvp(exec_arr[0], exec_arr.data()); // if successful, it never returns
 
             // if it returns, then replacing with command contents failed
