@@ -6,6 +6,7 @@ module;
 #include <vector>
 #include <sstream>
 export module parser;
+import configuration;
 
 // contains everything needed for parsing user input
 namespace parser
@@ -15,7 +16,20 @@ namespace parser
         std::erase_if(str, [](const char c) { return c == '"' || c == '\''; });
     }
 
-    static std::vector<std::string> tokenize(const std::string& input)
+    [[nodiscard]]
+    static std::string replace_env_val(const std::string& str)
+    {
+        // pattern for env variables must start with '$' and followed by text
+        if (!str.empty() && str[0] == '$' && str.size() >= 2 && std::isalpha(str[1]))
+        {
+            const auto env_name = str.substr(1, str.size() - 1);
+            return environment::fetch_env(env_name).value_or("");
+        }
+
+        return str;
+    }
+
+    export std::vector<std::string> parse_input(const std::string& input)
     {
         std::istringstream istream(input);
         std::vector<std::string> tokens;
@@ -24,23 +38,10 @@ namespace parser
         while (istream >> token)
         {
             remove_quotes(token);
+            token = replace_env_val(token);
             tokens.push_back(token);
         }
 
         return tokens;
-    }
-
-    // converts input into an array of c_strings
-    export std::vector<char*> parse_input(const std::string& input)
-    {
-        std::vector<char*> c_args;
-
-        for (auto tokens = tokenize(input); auto& token : tokens)
-        {
-            c_args.push_back(token.data());
-        }
-        c_args.push_back(nullptr); // must be null terminated
-
-        return c_args;
     }
 }

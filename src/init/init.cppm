@@ -7,6 +7,7 @@ module;
 #include <unistd.h>
 #include <bits/local_lim.h>
 export module init;
+import configuration;
 
 namespace init
 {
@@ -21,12 +22,7 @@ namespace init
         }
 
         // Fallback to environment variable
-        // TODO: Revisit after environment variable subsystem implementation
-        if (auto env_user = getenv("USER"); env_user != nullptr)
-        {
-            return env_user;
-        }
-        return {};
+        return environment::fetch_env("USER");
     }
 
     static std::optional<std::string> get_hostname()
@@ -39,12 +35,7 @@ namespace init
         }
 
         // Fallback to environment variable
-        // TODO: Revisit after environment variable subsystem implementation
-        if (auto env_hostname = getenv("HOSTNAME"); env_hostname != nullptr)
-        {
-            return env_hostname;
-        }
-        return {};
+        return environment::fetch_env("HOSTNAME");
     }
 
     // PS1 is the prompt string for the shell

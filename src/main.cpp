@@ -2,6 +2,7 @@
 import parser;
 import init;
 import executor;
+import configuration;
 using namespace std;
 
 int main()
@@ -17,12 +18,11 @@ int main()
         // if nothing, skip
         if (_input.empty()) { continue; }
 
-        // Built-in command: exit
+        // Built-in commands
         if (_input == "exit") { break; }
 
-        auto const cmd = parser::parse_input(_input);
-
         // external command
-        executor::execute(cmd);
+        auto const cmd_tokens = parser::parse_input(_input);
+        executor::execute(cmd_tokens);
     }
 }
