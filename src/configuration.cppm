@@ -8,6 +8,7 @@ module;
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <unistd.h>
 export module configuration;
 
 namespace environment
@@ -35,6 +36,7 @@ namespace history
         explicit HistoryState();
         void ensure_state();
         void display();
+        void clear() const;
         void append(const std::string& input);
 
     private:
@@ -75,5 +77,10 @@ namespace history
         history_io.clear();
         history_io << input << "\n";
         history_io.flush();
+    }
+
+    void HistoryState::clear() const
+    {
+        truncate(history_file.c_str(), 0);
     }
 }

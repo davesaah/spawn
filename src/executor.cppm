@@ -32,7 +32,7 @@ namespace executor
         const auto pid = fork();
         if (pid < 0)
         {
-            std::cerr << "unable to start user process: " << cmd_tokens[0] << "\n";
+            std::cerr << "unable to start user process: " << cmd_tokens.at(0) << "\n";
             return;
         }
 
@@ -40,10 +40,10 @@ namespace executor
         if (pid == 0)
         {
             const auto exec_arr = get_exec_array(cmd_tokens);
-            execvp(exec_arr[0], exec_arr.data()); // if successful, it never returns
+            execvp(exec_arr.at(0), exec_arr.data()); // if successful, it never returns
 
             // if it returns, then replacing with command contents failed
-            std::cerr << "Command not found: " << cmd_tokens[0] << "\n";
+            std::cerr << "Command not found: " << cmd_tokens.at(0) << "\n";
             _exit(127); // terminate child process
         }
 

@@ -22,7 +22,7 @@ namespace parser
         std::string replace_env_val(const std::string& str)
         {
             // pattern for env variables must start with '$' and followed by text
-            if (!str.empty() && str[0] == '$' && str.size() >= 2 && std::isalpha(str[1]))
+            if (!str.empty() && str.at(0) == '$' && str.size() >= 2 && std::isalpha(str.at(1)))
             {
                 const auto env_name = str.substr(1, str.size() - 1);
                 return environment::fetch_env(env_name).value_or("");
