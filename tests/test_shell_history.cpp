@@ -1,24 +1,25 @@
 //
 // Created by davesaah on 03/10/2026.
 //
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
 #include <iostream>
 #include <sstream>
 
 import configuration;
 
-using ::testing::IsEmpty;
 using ::testing::Eq;
+using ::testing::IsEmpty;
 
 namespace
 {
     // Fixture class to isolate setup and stream redirection
     class HistoryTest : public ::testing::Test
     {
-    protected:
+      protected:
         std::ostringstream captured_stream;
-        std::streambuf* old_cout_buffer{nullptr};
+        std::streambuf *old_cout_buffer{nullptr};
         history::HistoryState history;
 
         // runs before each test begins
@@ -35,7 +36,7 @@ namespace
             std::cout.rdbuf(old_cout_buffer);
         }
     };
-}
+} // namespace
 
 TEST_F(HistoryTest, ClearsHistoryState)
 {
@@ -51,9 +52,8 @@ TEST_F(HistoryTest, DisplaysAppendedEntriesInOrder)
 
     history.display();
 
-    const std::string expected_output =
-        "echo hello\n"
-        "pwd\n";
+    const std::string expected_output = "echo hello\n"
+                                        "pwd\n";
 
     EXPECT_THAT(captured_stream.str(), Eq(expected_output));
 }

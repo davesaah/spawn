@@ -2,10 +2,11 @@
 // Created by davesaah on 02/10/2026.
 //
 module;
-#include <string>
-#include <optional>
-#include <unistd.h>
 #include <bits/local_lim.h>
+#include <unistd.h>
+
+#include <optional>
+#include <string>
 export module init;
 import configuration;
 
@@ -18,8 +19,7 @@ namespace init
             char username[LOGIN_NAME_MAX];
 
             // Retrieve logged-in user for the active terminal session
-            if (getlogin_r(username, sizeof(username)) == 0)
-            {
+            if (getlogin_r(username, sizeof(username)) == 0) {
                 return username;
             }
 
@@ -31,16 +31,14 @@ namespace init
         {
             char hostname[HOST_NAME_MAX];
 
-            if (gethostname(hostname, sizeof(hostname)) == 0)
-            {
+            if (gethostname(hostname, sizeof(hostname)) == 0) {
                 return hostname;
             }
 
             // Fallback to environment variable
             return environment::fetch_env("HOSTNAME");
         }
-    }
-
+    } // namespace
 
     // PS1 is the prompt string for the shell
     // by default, it will be username@hostname
@@ -50,4 +48,4 @@ namespace init
         auto const hostname = get_hostname().value_or("pc");
         return username + "@" + hostname + "$ ";
     }
-}
+} // namespace init

@@ -1,0 +1,8 @@
+CompilationDatabase: "build/debug"
+
+CompileFlags:
+  Compiler: clang++
+  Add:
+    - "-std=c++26"
+    - "-fprebuilt-module-path=build/debug"
+    - "-fprebuilt-module-path=build/debug/CMakeFiles"

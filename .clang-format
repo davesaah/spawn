@@ -1,0 +1,31 @@
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: Latest
+
+# Indentation & Tab Settings
+IndentWidth: 4
+
+# Column Limit
+ColumnLimit: 80
+
+# Access Modifiers (public:, protected:, private:)
+AccessModifierOffset: -2
+
+# Bracing Style
+BreakBeforeBraces: Linux
+
+# Short Statements / Inline Functions
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: False
+
+# Namespace Indentation
+NamespaceIndentation: All
+
+# Spaces
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInSquareBrackets: false
+SpacesInAngles: false

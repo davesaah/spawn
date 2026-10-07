@@ -13,21 +13,23 @@ int main()
     history.ensure_state();
 
     // shell loop
-    for (string _input;;)
-    {
+    for (string _input;;) {
         cout << init::get_ps1();
         getline(cin, _input);
 
         // if nothing, skip
-        if (_input.empty()) { continue; }
+        if (_input.empty()) {
+            continue;
+        }
 
         // update history
         history.append(_input);
 
         // Built-in commands
-        if (_input == "exit") { break; }
-        if (_input == "history")
-        {
+        if (_input == "exit") {
+            break;
+        }
+        if (_input == "history") {
             history.display();
             continue;
         }

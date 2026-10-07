@@ -9,6 +9,7 @@ RELEASE_DIR := $(BUILD_DIR)/release
 	generate \
 	build-debug \
 	build-release \
+	start-debug \
 	run \
 	test \
 	benchmark \
@@ -17,7 +18,8 @@ RELEASE_DIR := $(BUILD_DIR)/release
 generate-debug:
 	@cmake -S . -B $(DEBUG_DIR) \
 		-G Ninja \
-		-DCMAKE_BUILD_TYPE=Debug
+		-DCMAKE_BUILD_TYPE=Debug \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 generate-release:
 	@cmake -S . -B $(RELEASE_DIR) \
@@ -30,6 +32,10 @@ generate: clean generate-debug generate-release
 
 build-debug: generate-debug
 	@cmake --build $(DEBUG_DIR)
+	@ln -sf build/debug/compile_commands.json .
+
+start-debug: build-debug
+	@raddbg $(DEBUG_DIR)/spawn
 
 build-release: generate-release
 	@cmake --build $(RELEASE_DIR)
