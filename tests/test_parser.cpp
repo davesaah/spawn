@@ -8,7 +8,7 @@
 #include <vector>
 
 import parser;
-import configuration;
+import environment;
 
 using ::testing::ContainerEq;
 
@@ -25,7 +25,7 @@ namespace
     };
 
     std::string
-    PrintTestName(const ::testing::TestParamInfo<ParserTestCase> &info)
+    PrintTestName(const ::testing::TestParamInfo<ParserTestCase>& info)
     {
         return info.param.test_name;
     }
@@ -34,7 +34,7 @@ namespace
 // Parameterised test
 TEST_P(ParserTest, TokenizesInputCorrectly)
 {
-    const auto &[_, input, expected_tokens] = GetParam();
+    const auto& [_, input, expected_tokens] = GetParam();
     EXPECT_THAT(parser::parse_input(input), ContainerEq(expected_tokens));
 }
 

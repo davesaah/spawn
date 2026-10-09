@@ -47,6 +47,6 @@ benchmark: generate-release
 clean:
 	@rm -rf $(BUILD_DIR)
 
-install:
+install: build-release
 	@strip $(RELEASE_DIR)/spawn
 	@cp $(RELEASE_DIR)/spawn ~/.local/bin

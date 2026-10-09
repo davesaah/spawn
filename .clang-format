@@ -23,6 +23,9 @@ AllowShortLoopsOnASingleLine: False
 # Namespace Indentation
 NamespaceIndentation: All
 
+# Pointer Alignment
+PointerAlignment: Left
+
 # Spaces
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements

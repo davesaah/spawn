@@ -1,27 +1,11 @@
-//
-// Created by davesaah on 02/10/2026.
-//
-module;
-#include <unistd.h>
 
-#include <cstdlib>
+module;
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <optional>
-#include <string>
-export module configuration;
-
-namespace environment
-{
-    export std::optional<std::string> fetch_env(const std::string &var)
-    {
-        if (auto const env_val = getenv(var.c_str()); env_val != nullptr) {
-            return env_val;
-        }
-        return {};
-    }
-} // namespace environment
+#include <unistd.h>
+export module history;
+import environment;
 
 namespace history
 {
@@ -37,7 +21,7 @@ namespace history
         void ensure_state();
         void display();
         void clear() const;
-        void append(const std::string &input);
+        void append(const std::string& input);
 
       private:
         fs::path history_file;
@@ -67,7 +51,7 @@ namespace history
         }
     }
 
-    void HistoryState::append(const std::string &input)
+    void HistoryState::append(const std::string& input)
     {
         history_io.clear();
         history_io << input << "\n";

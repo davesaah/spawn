@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 
-import configuration;
+import history;
 
 using ::testing::Eq;
 using ::testing::IsEmpty;
@@ -19,7 +19,7 @@ namespace
     {
       protected:
         std::ostringstream captured_stream;
-        std::streambuf *old_cout_buffer{nullptr};
+        std::streambuf* old_cout_buffer{nullptr};
         history::HistoryState history;
 
         // runs before each test begins
