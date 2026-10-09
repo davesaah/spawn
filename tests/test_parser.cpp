@@ -31,9 +31,10 @@ namespace
     }
 } // namespace
 
+// Parameterised test
 TEST_P(ParserTest, TokenizesInputCorrectly)
 {
-    const auto &[name, input, expected_tokens] = GetParam();
+    const auto &[_, input, expected_tokens] = GetParam();
     EXPECT_THAT(parser::parse_input(input), ContainerEq(expected_tokens));
 }
 

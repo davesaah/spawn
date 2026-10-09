@@ -38,6 +38,7 @@ namespace
     };
 } // namespace
 
+// Test Fixture: allows the sharing of common objects
 TEST_F(HistoryTest, ClearsHistoryState)
 {
     history.clear();
