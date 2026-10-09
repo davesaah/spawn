@@ -11,7 +11,6 @@ RELEASE_DIR := $(BUILD_DIR)/release
 	build-release \
 	run \
 	test \
-	benchmark \
 	clean
 
 generate-debug:
@@ -40,13 +39,9 @@ run: build-debug
 test: build-debug
 	@ctest --test-dir $(DEBUG_DIR) --output-on-failure
 
-benchmark: generate-release
-	@cmake --build $(RELEASE_DIR)
-	@./$(RELEASE_DIR)/benchmark
-
 clean:
 	@rm -rf $(BUILD_DIR)
 
-install:
+install: build-release
 	@strip $(RELEASE_DIR)/spawn
 	@cp $(RELEASE_DIR)/spawn ~/.local/bin

@@ -8,7 +8,7 @@ module;
 #include <optional>
 #include <string>
 export module init;
-import configuration;
+import environment;
 
 namespace init
 {

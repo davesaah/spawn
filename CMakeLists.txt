@@ -13,6 +13,7 @@ add_library(spawn_lib)
 
 file(GLOB_RECURSE MODULE_FILES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cppm"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/**/*.cppm"
 )
 
 target_sources(spawn_lib
@@ -37,10 +38,4 @@ option(BUILD_TESTS "Build tests" ON)
 if(BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
-endif()
-
-# benchmarks
-option(BUILD_BENCHMARKS "Build benchmarks" ON)
-if(BUILD_BENCHMARKS)
-  add_subdirectory(benchmarks)
 endif()

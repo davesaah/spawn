@@ -8,7 +8,7 @@
 #include <vector>
 
 import parser;
-import configuration;
+import environment;
 
 using ::testing::ContainerEq;
 
@@ -24,8 +24,14 @@ namespace
     {
     };
 
-    std::string
-    PrintTestName(const ::testing::TestParamInfo<ParserTestCase> &info)
+<<<<<<< conflict 1 of 1
+    % % % % % % % diff from : nyrqkqpq 35297fae "doc: tests"(parents of rebased revision)
+\\\\\\\ to : ttwllzww b589e730 "feat: refactor + default env setup"(rebase destination)std::string -
+        PrintTestName(const ::testing::TestParamInfo<ParserTestCase>& info) +
+        PrintTestName(const ::testing::TestParamInfo<ParserTestCase>& info)++ ++ ++ +ttwllzww cafe3aa4
+        "feat: refactor + default env setup"(rebased revision)std::string
+        PrintTestName(const ::testing::TestParamInfo<ParserTestCase>& info)
+>>>>>>> conflict 1 of 1 ends
     {
         return info.param.test_name;
     }
@@ -34,39 +40,31 @@ namespace
 // Parameterised test
 TEST_P(ParserTest, TokenizesInputCorrectly)
 {
-    const auto &[_, input, expected_tokens] = GetParam();
+    const auto& [_, input, expected_tokens] = GetParam();
     EXPECT_THAT(parser::parse_input(input), ContainerEq(expected_tokens));
 }
 
 INSTANTIATE_TEST_SUITE_P(
     CommonInputs, ParserTest,
-    ::testing::Values(
-        ParserTestCase{.test_name = "SimpleCommand",
-                       .input = "ls",
-                       .expected_tokens = {"ls"}},
-        ParserTestCase{.test_name = "SimpleCommandWithArg",
-                       .input = "echo world",
-                       .expected_tokens = {"echo", "world"}},
-        ParserTestCase{.test_name = "MultipleArgumentsWithFlags",
-                       .input = "ls -la /tmp",
-                       .expected_tokens = {"ls", "-la", "/tmp"}},
-        ParserTestCase{.test_name = "ExtraWhitespaceBetweenTokens",
-                       .input = "  cat    file.txt   ",
-                       .expected_tokens = {"cat", "file.txt"}},
-        ParserTestCase{
-            .test_name = "EmptyInput", .input = "", .expected_tokens = {}},
-        ParserTestCase{.test_name = "OnlyWhitespace",
-                       .input = "   \t  ",
-                       .expected_tokens = {}},
-        ParserTestCase{.test_name = "RemovesQuotes",
-                       .input = "echo \"Hello world\"",
-                       .expected_tokens = {"echo", "Hello", "world"}},
-        ParserTestCase{
-            .test_name = "ReplacesRealEnvVariables",
-            .input = "echo $HOME",
-            .expected_tokens = {"echo",
-                                environment::fetch_env("HOME").value()}},
-        ParserTestCase{.test_name = "ReplacesFakeEnvVariables",
-                       .input = "echo $HOMELAND",
-                       .expected_tokens = {"echo", ""}}),
+    ::testing::Values(ParserTestCase{.test_name = "SimpleCommand", .input = "ls", .expected_tokens = {"ls"}},
+                      ParserTestCase{.test_name = "SimpleCommandWithArg",
+                                     .input = "echo world",
+                                     .expected_tokens = {"echo", "world"}},
+                      ParserTestCase{.test_name = "MultipleArgumentsWithFlags",
+                                     .input = "ls -la /tmp",
+                                     .expected_tokens = {"ls", "-la", "/tmp"}},
+                      ParserTestCase{.test_name = "ExtraWhitespaceBetweenTokens",
+                                     .input = "  cat    file.txt   ",
+                                     .expected_tokens = {"cat", "file.txt"}},
+                      ParserTestCase{.test_name = "EmptyInput", .input = "", .expected_tokens = {}},
+                      ParserTestCase{.test_name = "OnlyWhitespace", .input = "   \t  ", .expected_tokens = {}},
+                      ParserTestCase{.test_name = "RemovesQuotes",
+                                     .input = "echo \"Hello world\"",
+                                     .expected_tokens = {"echo", "Hello", "world"}},
+                      ParserTestCase{.test_name = "ReplacesRealEnvVariables",
+                                     .input = "echo $HOME",
+                                     .expected_tokens = {"echo", environment::fetch_env("HOME").value()}},
+                      ParserTestCase{.test_name = "ReplacesFakeEnvVariables",
+                                     .input = "echo $HOMELAND",
+                                     .expected_tokens = {"echo", ""}}),
     PrintTestName);
