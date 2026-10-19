@@ -22,8 +22,7 @@ generate-release:
 	@cmake -S . -B $(RELEASE_DIR) \
 		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_TESTS=OFF \
-    -DBUILD_BENCHMARKS=OFF
+    -DBUILD_TESTS=OFF
 
 generate: clean generate-debug generate-release
 
