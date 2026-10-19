@@ -24,7 +24,7 @@ namespace parser
             // text
             if (!str.empty() && str.at(0) == '$' && str.size() >= 2 && std::isalpha(str.at(1))) {
                 const auto env_name = str.substr(1, str.size() - 1);
-                return environment::fetch_env(env_name).value_or("");
+                return environment::fetch(env_name).value_or("");
             }
 
             return str;

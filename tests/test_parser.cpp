@@ -24,14 +24,7 @@ namespace
     {
     };
 
-<<<<<<< conflict 1 of 1
-    % % % % % % % diff from : nyrqkqpq 35297fae "doc: tests"(parents of rebased revision)
-\\\\\\\ to : ttwllzww b589e730 "feat: refactor + default env setup"(rebase destination)std::string -
-        PrintTestName(const ::testing::TestParamInfo<ParserTestCase>& info) +
-        PrintTestName(const ::testing::TestParamInfo<ParserTestCase>& info)++ ++ ++ +ttwllzww cafe3aa4
-        "feat: refactor + default env setup"(rebased revision)std::string
-        PrintTestName(const ::testing::TestParamInfo<ParserTestCase>& info)
->>>>>>> conflict 1 of 1 ends
+    std::string PrintTestName(const ::testing::TestParamInfo<ParserTestCase> &info)
     {
         return info.param.test_name;
     }
@@ -63,7 +56,7 @@ INSTANTIATE_TEST_SUITE_P(
                                      .expected_tokens = {"echo", "Hello", "world"}},
                       ParserTestCase{.test_name = "ReplacesRealEnvVariables",
                                      .input = "echo $HOME",
-                                     .expected_tokens = {"echo", environment::fetch_env("HOME").value()}},
+                                     .expected_tokens = {"echo", environment::fetch("HOME").value()}},
                       ParserTestCase{.test_name = "ReplacesFakeEnvVariables",
                                      .input = "echo $HOMELAND",
                                      .expected_tokens = {"echo", ""}}),

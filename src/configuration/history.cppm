@@ -9,8 +9,8 @@ import environment;
 namespace history
 {
     namespace fs = std::filesystem;
-    const auto home_path = environment::fetch_env("HOME").value();
-    const fs::path xdg_state_home = environment::fetch_env("XDG_STATE_HOME").value_or(home_path + "/.local/state");
+    const auto home_path = environment::fetch("HOME").value();
+    const fs::path xdg_state_home = environment::fetch("XDG_STATE_HOME").value_or(home_path + "/.local/state");
 
     export class HistoryState
     {

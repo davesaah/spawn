@@ -24,7 +24,7 @@ namespace init
             }
 
             // Fallback to environment variable
-            return environment::fetch_env("USER");
+            return environment::fetch("USER");
         }
 
         std::optional<std::string> get_hostname()
@@ -36,7 +36,7 @@ namespace init
             }
 
             // Fallback to environment variable
-            return environment::fetch_env("HOSTNAME");
+            return environment::fetch("HOSTNAME");
         }
     } // namespace
 
