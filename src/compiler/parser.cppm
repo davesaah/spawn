@@ -3,9 +3,11 @@
 //
 module;
 #include <sstream>
+#include <variant>
 #include <vector>
 export module parser;
 import environment;
+import token;
 
 // contains everything needed for parsing user input
 namespace parser
@@ -15,6 +17,13 @@ namespace parser
         void remove_quotes(std::string& str)
         {
             std::erase_if(str, [](const char c) { return c == '"' || c == '\''; });
+        }
+
+        [[nodiscard]]
+        std::string _remove_quotes(std::string str)
+        {
+            std::erase_if(str, [](const char c) { return c == '"' || c == '\''; });
+            return str;
         }
 
         [[nodiscard]]
@@ -30,6 +39,24 @@ namespace parser
             return str;
         }
     } // namespace
+
+    export std::vector<std::string> parse_input(const std::vector<token::Token>& input_tokens)
+    {
+        std::vector<std::string> cmd_tokens;
+        cmd_tokens.reserve(input_tokens.size());
+
+        for (const auto& token : input_tokens) {
+            auto literal = _remove_quotes(token.literal);
+
+            if (token.type == token::TokenType{token::Shell::ENVIRONMENT}) {
+                literal = replace_env_val(literal);
+            }
+
+            cmd_tokens.push_back(std::move(literal));
+        }
+
+        return cmd_tokens;
+    }
 
     export std::vector<std::string> parse_input(const std::string& input)
     {

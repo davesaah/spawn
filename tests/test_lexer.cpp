@@ -29,7 +29,9 @@ TEST_P(LexerTest, CheckingTokens)
 {
     const auto& [_, input, expected_type] = GetParam();
     const auto l = lexer::lexer(input);
-    EXPECT_EQ(l.get_next_token().type, expected_type);
+    auto token = l.get_next_token();
+    std::cout << "literal: " << token.literal << "\n";
+    EXPECT_EQ(token.type, expected_type);
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -39,6 +41,8 @@ INSTANTIATE_TEST_SUITE_P(
         LexerTestCase{.test_name = "ExportKeyword", .input = "export", .expected_type = token::Keyword::EXPORT},
         LexerTestCase{.test_name = "HistoryKeyword", .input = "history", .expected_type = token::Keyword::HISTORY},
         LexerTestCase{.test_name = "PipeSymbol", .input = "|", .expected_type = token::Symbol::PIPE},
+        LexerTestCase{.test_name = "DollarSymbol", .input = "$", .expected_type = token::Shell::ENVIRONMENT},
+        LexerTestCase{.test_name = "EnvironmentLiteral", .input = "$HOME", .expected_type = token::Shell::ENVIRONMENT},
         LexerTestCase{.test_name = "EqualsSymbol", .input = "=", .expected_type = token::Symbol::EQUALS}),
     PrintTestName);
 
@@ -69,6 +73,7 @@ TEST_P(LexerCmdTest, CheckingCommandTokens)
 
     for (auto _token = l.get_next_token(); _token.type != token::TokenType{token::Symbol::END};
          _token = l.get_next_token()) {
+        std::cout << "literal: " << _token.literal << "\n";
         token_types.push_back(_token.type);
     }
 
@@ -81,5 +86,10 @@ INSTANTIATE_TEST_SUITE_P(
                                        .input = "echo hello",
                                        .expected_types = {token::Shell::COMMAND, token::Shell::ARGUMENT}},
                       LexerCmdTestCase{
-                          .test_name = "LsProgram", .input = "ls", .expected_types = {token::Shell::COMMAND}}),
+                          .test_name = "LsProgram", .input = "ls", .expected_types = {token::Shell::COMMAND}},
+                      LexerCmdTestCase{.test_name = "EnvValueProgram",
+                                       .input = "echo $HOME",
+                                       .expected_types = {token::Shell::COMMAND, token::Shell::ENVIRONMENT}}
+
+                      ),
     PrintCmdTestName);

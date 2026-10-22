@@ -2,6 +2,7 @@
 // Created by davesaah on 22/10/2026.
 //
 module;
+#include <iostream>
 #include <string>
 #include <variant>
 export module token;
@@ -51,6 +52,7 @@ namespace token
     export enum class Shell {
         COMMAND,
         ARGUMENT,
+        ENVIRONMENT,
     };
 
     export constexpr std::string_view to_string(const Shell sh)
@@ -60,6 +62,8 @@ namespace token
             return "Shell::COMMAND";
         case Shell::ARGUMENT:
             return "Shell::ARGUMENT";
+        case Shell::ENVIRONMENT:
+            return "Shell::ENVIRONMENT";
         default:
             return "Shell::<unknown>";
         }
@@ -82,6 +86,12 @@ namespace token
         TokenType type;
         std::string literal;
     };
+
+    export std::ostream& operator<<(std::ostream& os, const Token& token)
+    {
+        std::visit([&os](const auto& t) { os << t; }, token.type);
+        return os << " \"" << token.literal << '"';
+    }
 
     export TokenType lookup(const std::string& value, const size_t& position)
     {

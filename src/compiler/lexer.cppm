@@ -14,12 +14,12 @@ namespace lexer
 {
     export class lexer
     {
-    public:
+      public:
         explicit lexer(std::string _input);
         [[nodiscard]] token::Token get_next_token() const;
         [[nodiscard]] std::vector<token::Token> get_tokens() const;
 
-    private:
+      private:
         std::string input;
         mutable char current_char{};
         mutable size_t current_position{};
@@ -28,6 +28,7 @@ namespace lexer
 
         friend void read_next_char(const lexer&);
         friend bool is_whitespace(const char&);
+        friend std::string get_str_literal(const lexer&, size_t);
     };
 
     std::vector<token::Token> lexer::get_tokens() const
@@ -67,6 +68,14 @@ namespace lexer
         return c == ' ' || c == '\t';
     }
 
+    std::string get_str_literal(const lexer& l, const size_t start)
+    {
+        while (l.current_char != 0 && !is_whitespace(l.current_char)) {
+            read_next_char(l);
+        }
+        return l.input.substr(start, l.current_position);
+    }
+
     token::Token lexer::get_next_token() const
     {
         while (is_whitespace(current_char)) {
@@ -86,16 +95,17 @@ namespace lexer
         case '=':
             tok.type = token::Symbol::EQUALS;
             break;
+        case '$':
+            tok.type = token::Shell::ENVIRONMENT;
+            break;
         default:
-            while (current_char != 0 && !is_whitespace(current_char)) {
-                read_next_char(*this);
-            }
-            tok.literal = input.substr(start, current_position);
+            tok.literal = get_str_literal(*this, start);
             tok.type = token::lookup(tok.literal, start);
             return tok;
         }
 
-        tok.literal = input.substr(start, current_position + 1);
+        // tok.literal = input.substr(start, current_position + 1);
+        tok.literal = get_str_literal(*this, start);
         read_next_char(*this);
         return tok;
     }

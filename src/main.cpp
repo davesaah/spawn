@@ -1,9 +1,10 @@
 #include <iostream>
 import parser;
 import init;
-import executor;
-import environment;
+// import executor;
 import history;
+import token;
+import lexer;
 using namespace std;
 
 int main()
@@ -24,19 +25,33 @@ int main()
         }
 
         // update history
-        history.append(_input);
+        // history.append(_input);
+        //
+        // // Built-in commands
+        // if (_input == "exit") {
+        //     break;
+        // }
+        // if (_input == "history") {
+        //     history.display();
+        //     continue;
+        // }
+        //
+        // // external command
+        // auto const cmd_tokens = parser::parse_input(_input);
 
-        // Built-in commands
-        if (_input == "exit") {
-            break;
-        }
-        if (_input == "history") {
-            history.display();
-            continue;
+        auto const l = lexer::lexer(_input);
+        auto const input_tokens = l.get_tokens();
+
+        cout << "\ninput tokens:\n";
+        for (auto const& input_token : input_tokens) {
+            cout << input_token << "\n";
         }
 
-        // external command
-        auto const cmd_tokens = parser::parse_input(_input);
-        executor::execute(cmd_tokens);
+        cout << "\ncmd tokens:\n";
+        auto const cmd_tokens = parser::parse_input(input_tokens);
+        for (auto const& cmd_token : cmd_tokens) {
+            cout << cmd_token << "\n";
+        }
+        // executor::execute(cmd_tokens);
     }
 }
