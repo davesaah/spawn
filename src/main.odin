@@ -10,7 +10,7 @@ import "core:strings"
 import e "errors"
 
 main :: proc() {
-	main_stack_buffer: [1048]byte // 1KB
+	main_stack_buffer: [1024]byte // 1KB
 	main_arena: mem.Arena
 	mem.arena_init(&main_arena, main_stack_buffer[:])
 
