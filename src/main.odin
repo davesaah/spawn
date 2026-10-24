@@ -1,6 +1,7 @@
 package main
 
-import c "configuration"
+import "compiler"
+import conf "configuration"
 import "core:bufio"
 import "core:fmt"
 import "core:mem"
@@ -9,7 +10,7 @@ import "core:strings"
 import e "errors"
 
 main :: proc() {
-	main_stack_buffer: [2048]byte // 1KB
+	main_stack_buffer: [1048]byte // 1KB
 	main_arena: mem.Arena
 	mem.arena_init(&main_arena, main_stack_buffer[:])
 
@@ -17,9 +18,12 @@ main :: proc() {
 	bufio.reader_init(&reader, os.to_stream(os.stdin))
 	defer bufio.reader_destroy(&reader)
 
-	sys_info := c.get_info(mem.arena_allocator(&main_arena))
+	sys_info := conf.get_info(mem.arena_allocator(&main_arena))
 
-	history_path, p_err := c.initialize_history(sys_info.homedir, mem.arena_allocator(&main_arena))
+	history_path, p_err := conf.initialize_history(
+		sys_info.homedir,
+		mem.arena_allocator(&main_arena),
+	)
 	if p_err.type != e.ErrorKind.NONE {
 		fmt.eprintfln("[unable to initialize history] %s", e.get_error_msg(&p_err))
 		os.exit(1)
@@ -42,7 +46,16 @@ main :: proc() {
 		line := strings.trim_space(string(bytes))
 		defer {
 			if len(line) != 0 {
-				c.append_history(history_file, line)
+				conf.append_history(history_file, line)
+			}
+		}
+
+		l := compiler.new_lexer(line)
+		defer {
+			for tok := compiler.get_next_token(&l);
+			    tok.type != compiler.Symbol.EOF;
+			    tok = compiler.get_next_token(&l) {
+				fmt.printfln("%v", tok)
 			}
 		}
 
@@ -50,7 +63,7 @@ main :: proc() {
 		case "exit":
 			os.exit(0)
 		case "history":
-			c.display_history(history_file)
+			conf.display_history(history_file)
 			continue
 		}
 	}
