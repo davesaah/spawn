@@ -2,7 +2,7 @@ package compiler
 
 import "core:reflect"
 
-Keyword :: enum {
+BuiltinCmd :: enum {
 	EXIT,
 	HISTORY,
 }
@@ -22,7 +22,7 @@ Shell :: enum {
 TokenType :: union {
 	Shell,
 	Symbol,
-	Keyword,
+	BuiltinCmd,
 }
 
 Token :: struct {
@@ -38,9 +38,9 @@ is_symbol :: proc(b: byte) -> bool {
 lookup :: proc(s: string, p: int) -> TokenType {
 	switch s {
 	case "exit":
-		return Keyword.EXIT
+		return BuiltinCmd.EXIT
 	case "history":
-		return Keyword.HISTORY
+		return BuiltinCmd.HISTORY
 	case "export":
 		return Shell.EXPORT
 	case:

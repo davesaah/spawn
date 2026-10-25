@@ -3,6 +3,7 @@ package main
 import "compiler"
 import conf "configuration"
 import "core:bufio"
+import "core:c"
 import "core:fmt"
 import "core:mem"
 import "core:os"
@@ -52,14 +53,19 @@ main :: proc() {
 
 		l := compiler.new_lexer(line)
 		p := compiler.new_parser(&l)
-		shell_program, err := compiler.parse_shell_input(&p)
-		if err.type != e.ErrorKind.NONE {
-			fmt.eprintfln("[%s] %s", err.type, e.get_error_msg(&err))
+		shell_program, parse_err := compiler.parse_shell_input(&p)
+		if parse_err.type != e.ErrorKind.NONE {
+			fmt.eprintfln("[%s] %s", parse_err.type, e.get_error_msg(&parse_err))
 			continue
 		}
 
-		defer {
-			fmt.printfln("%v", shell_program)
+		if exec_err := compiler.execute(&shell_program, history_file);
+		   exec_err.type != e.ErrorKind.NONE {
+			fmt.eprintfln("[execution failed] %s", e.get_error_msg(&exec_err))
 		}
+
+		// defer {
+		// 	fmt.printfln("%v", shell_program)
+		// }
 	}
 }

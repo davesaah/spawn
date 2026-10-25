@@ -87,19 +87,6 @@ parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 	return var, e.no_error()
 }
 
-BuiltinCmd :: struct {
-	name: string,
-}
-
-is_builtin_cmd :: proc(p: ^Parser) -> bool {
-	_, ok := p.current_token.type.(Keyword)
-	return ok
-}
-
-parse_builtin_cmd :: proc(p: ^Parser) -> (cmd: BuiltinCmd, err: e.ErrorResult) {
-	cmd.name = p.current_token.literal
-	return cmd, e.no_error()
-}
 
 ShellProgram :: union {
 	Variable,
@@ -120,8 +107,8 @@ parse_shell_input :: proc(p: ^Parser) -> (program: ShellProgram, err: e.ErrorRes
 			return parse_variable(p)
 		}
 
-		if is_builtin_cmd(p) {
-			return parse_builtin_cmd(p)
+		if cmd, ok := p.current_token.type.(BuiltinCmd); ok {
+			return cmd, e.no_error()
 		}
 
 		break
