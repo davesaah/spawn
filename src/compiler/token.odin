@@ -12,12 +12,11 @@ Symbol :: enum {
 	PIPE   = '|',
 	EQUALS = '=',
 	EOF    = 0,
+	DOLLAR = '$',
 }
 
 Shell :: enum {
-	COMMAND,
 	IDENTIFIER,
-	ENVIRONMENT,
 }
 
 TokenType :: union {
@@ -44,11 +43,7 @@ lookup :: proc(s: string, p: int) -> TokenType {
 		return Keyword.HISTORY
 	case "export":
 		return Keyword.EXPORT
+	case:
+		return Shell.IDENTIFIER
 	}
-
-	if (p == 0) {
-		return Shell.COMMAND
-	}
-
-	return Shell.IDENTIFIER
 }

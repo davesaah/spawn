@@ -13,5 +13,12 @@
             "env": [],
             "cwd": "${workspaceFolder}/build/debug"
         },
+        {
+            "type": "lldb-dap",
+            "request": "attach",
+            "name": "Attach spawn",
+            "program": "${workspaceFolder}/build/debug/spawn",
+            "waitFor": true
+        }
     ]
 }

@@ -6,6 +6,7 @@ import "core:sys/posix"
 
 ErrorKind :: enum {
 	NONE,
+	SYNTAX_ERROR,
 }
 
 ErrorType :: union {
@@ -22,6 +23,10 @@ ErrorResult :: struct {
 
 no_error :: proc() -> ErrorResult {
 	return ErrorResult{type = ErrorKind.NONE}
+}
+
+syntax_error :: proc(msg, ctx: string) -> ErrorResult {
+	return ErrorResult{type = ErrorKind.SYNTAX_ERROR, msg = msg, ctx = ctx}
 }
 
 get_error_msg :: proc(err: ^ErrorResult) -> string {

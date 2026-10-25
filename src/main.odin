@@ -51,12 +51,15 @@ main :: proc() {
 		}
 
 		l := compiler.new_lexer(line)
+		p := compiler.new_parser(&l)
+		shell_program, err := compiler.parse_shell_input(&p)
+		if err.type != e.ErrorKind.NONE {
+			fmt.eprintfln("[%s] %s", err.type, e.get_error_msg(&err))
+			continue
+		}
+
 		defer {
-			for tok := compiler.get_next_token(&l);
-			    tok.type != compiler.Symbol.EOF;
-			    tok = compiler.get_next_token(&l) {
-				fmt.printfln("%v", tok)
-			}
+			fmt.printfln("%v", shell_program)
 		}
 
 		switch line {

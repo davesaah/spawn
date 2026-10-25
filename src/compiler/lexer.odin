@@ -47,7 +47,7 @@ get_next_token :: proc(l: ^Lexer) -> Token {
 	case '=':
 		tok.type = Symbol.EQUALS
 	case '$':
-		tok.type = Shell.ENVIRONMENT
+		tok.type = Symbol.DOLLAR
 	case '"', '\'':
 		quote := l.current_char
 
