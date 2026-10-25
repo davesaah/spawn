@@ -1,7 +1,7 @@
 package configuration
 
-import "base:runtime"
 import "core:fmt"
+import "core:mem"
 import "core:strings"
 import "core:sys/posix"
 
@@ -10,7 +10,7 @@ Info :: struct {
 	homedir: string,
 }
 
-get_info :: proc(allocator: runtime.Allocator) -> Info {
+get_info :: proc(allocator: mem.Allocator) -> Info {
 	HOSTNAME_MAX_BYTES :: 256
 	info: Info
 	username := "user"

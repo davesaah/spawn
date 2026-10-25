@@ -1,14 +1,14 @@
 package configuration
 
 import e "../errors"
-import "base:runtime"
 import "core:fmt"
+import "core:mem"
 import "core:os"
 
 
 initialize_history :: proc(
 	homedir: string,
-	allocator: runtime.Allocator,
+	allocator: mem.Allocator,
 ) -> (
 	path: string,
 	err: e.ErrorResult,

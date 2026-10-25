@@ -1,6 +1,8 @@
 package compiler
 
 import e "../errors"
+import "core:mem"
+import "core:strings"
 
 Parser :: struct {
 	lexer:         ^Lexer,
@@ -87,14 +89,61 @@ parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 	return var, e.no_error()
 }
 
+ShellCmd :: struct {
+	command:  string,
+	argument: [dynamic]string,
+}
+
+shell_args_init :: proc(sh: ^ShellCmd, allocator: mem.Allocator) {
+	sh.argument = make([dynamic]string, 0, 4, allocator) // set initital capacity to 4
+}
 
 ShellProgram :: union {
 	Variable,
 	BuiltinCmd,
+	ShellCmd,
 }
 
-parse_shell_input :: proc(p: ^Parser) -> (program: ShellProgram, err: e.ErrorResult) {
+parse_shell_cmd :: proc(
+	p: ^Parser,
+	allocator: mem.Allocator,
+) -> (
+	cmd: ShellCmd,
+	err: e.ErrorResult,
+) {
+	cmd.command = strings.clone(p.current_token.literal, allocator)
+	shell_args_init(&cmd, allocator)
+
 	for p.current_token.type != Symbol.EOF {
+		var: Variable
+
+		parse_next_token(p)
+
+		// TODO: Need to get value of environment variables
+		// if is_variable(p) {
+		// 	var, err = parse_variable(p)
+		// 	if err.type != e.ErrorKind.NONE {
+		// 		return {}, err
+		// 	}
+
+		// 	append(&cmd.argument, strings.clone(var.value, cmd.argument.allocator))
+		// 	continue
+		// }
+
+		append(&cmd.argument, strings.clone(p.current_token.literal, cmd.argument.allocator))
+	}
+
+	return cmd, e.no_error()
+}
+
+parse_shell_input :: proc(
+	p: ^Parser,
+	allocator: mem.Allocator,
+) -> (
+	program: ShellProgram,
+	err: e.ErrorResult,
+) {
+	if p.current_token.type != Symbol.EOF {
 		if is_variable_assignment(p) {
 			return parse_variable_assignment(p)
 		}
@@ -111,8 +160,8 @@ parse_shell_input :: proc(p: ^Parser) -> (program: ShellProgram, err: e.ErrorRes
 			return cmd, e.no_error()
 		}
 
-		break
+		return parse_shell_cmd(p, allocator)
 	}
 
-	return {}, {}
+	return {}, e.no_error()
 }
