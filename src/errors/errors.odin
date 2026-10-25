@@ -7,6 +7,7 @@ import "core:sys/posix"
 ErrorKind :: enum {
 	NONE,
 	SYNTAX_ERROR,
+	NOT_SET_ERROR,
 }
 
 ErrorType :: union {
@@ -25,8 +26,20 @@ no_error :: proc() -> ErrorResult {
 	return ErrorResult{type = ErrorKind.NONE}
 }
 
-syntax_error :: proc(msg, ctx: string) -> ErrorResult {
-	return ErrorResult{type = ErrorKind.SYNTAX_ERROR, msg = msg, ctx = ctx}
+syntax_error :: proc(ctx: string) -> ErrorResult {
+	return ErrorResult {
+		type = ErrorKind.SYNTAX_ERROR,
+		msg = "variable cannot start with a number",
+		ctx = ctx,
+	}
+}
+
+not_set_error :: proc(ctx: string) -> ErrorResult {
+	return ErrorResult {
+		type = ErrorKind.NOT_SET_ERROR,
+		msg = "no value has been set for environment variable",
+		ctx = ctx,
+	}
 }
 
 get_error_msg :: proc(err: ^ErrorResult) -> string {

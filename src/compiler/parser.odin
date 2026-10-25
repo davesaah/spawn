@@ -47,7 +47,7 @@ parse_variable_assignment :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorRes
 	// variable cannot start with a number
 
 	if is_number(var.name[0]) {
-		return {}, e.syntax_error(msg = "variable cannot start with a number", ctx = p.current_token.literal)
+		return {}, e.syntax_error(ctx = p.current_token.literal)
 	}
 
 	parse_next_token(p) // current_token is EQUALS
@@ -83,7 +83,7 @@ parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 
 	var.name = p.current_token.literal
 	if is_number(var.name[0]) {
-		return {}, e.syntax_error(msg = "variable cannot start with a number", ctx = p.current_token.literal)
+		return {}, e.syntax_error(ctx = p.current_token.literal)
 	}
 
 	return var, e.no_error()
@@ -119,16 +119,19 @@ parse_shell_cmd :: proc(
 
 		parse_next_token(p)
 
-		// TODO: Need to get value of environment variables
-		// if is_variable(p) {
-		// 	var, err = parse_variable(p)
-		// 	if err.type != e.ErrorKind.NONE {
-		// 		return {}, err
-		// 	}
+		if is_variable(p) {
+			var, err = parse_variable(p)
+			if err.type != e.ErrorKind.NONE {
+				return {}, err
+			}
 
-		// 	append(&cmd.argument, strings.clone(var.value, cmd.argument.allocator))
-		// 	continue
-		// }
+			if err := get_variable(&var, allocator); err.type != e.ErrorKind.NONE {
+				return {}, err
+			}
+
+			append(&cmd.argument, strings.clone(var.value, cmd.argument.allocator))
+			continue
+		}
 
 		append(&cmd.argument, strings.clone(p.current_token.literal, cmd.argument.allocator))
 	}

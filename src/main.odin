@@ -3,7 +3,6 @@ package main
 import "compiler"
 import conf "configuration"
 import "core:bufio"
-import "core:c"
 import "core:fmt"
 import "core:mem"
 import "core:os"
@@ -17,7 +16,7 @@ main :: proc() {
 	main_alloc := mem.arena_allocator(&main_arena)
 
 	// loop arena: its backing buffer comes from the main arena
-	loop_buffer, _ := make([]byte, 512, main_alloc)
+	loop_buffer, _ := make([]byte, 512, main_alloc) // 500 B
 	loop_arena: mem.Arena
 	mem.arena_init(&loop_arena, loop_buffer)
 	loop_alloc := mem.arena_allocator(&loop_arena)
