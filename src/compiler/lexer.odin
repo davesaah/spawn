@@ -1,7 +1,7 @@
 package compiler
 
 import "core:strings"
-import "core:unicode/utf8"
+
 Lexer :: struct {
 	input:            string,
 	current_char:     byte,
@@ -48,6 +48,24 @@ get_next_token :: proc(l: ^Lexer) -> Token {
 		tok.type = Symbol.EQUALS
 	case '$':
 		tok.type = Shell.ENVIRONMENT
+	case '"', '\'':
+		quote := l.current_char
+
+		// eat first quote
+		read_next_char(l)
+		start += 1
+
+		// retrieve identifier
+		for l.current_char != quote {
+			read_next_char(l)
+		}
+
+		// eat last quote
+		read_next_char(l)
+
+		tok.literal = l.input[start:l.current_position - 1]
+		tok.type = lookup(tok.literal, start)
+		return tok
 	case:
 		for !strings.is_space(rune(l.current_char)) && !is_symbol(l.current_char) {
 			read_next_char(l)
