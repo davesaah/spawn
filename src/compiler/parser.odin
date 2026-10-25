@@ -56,7 +56,7 @@ parse_variable_assignment :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorRes
 }
 
 is_variable_export :: proc(p: ^Parser) -> bool {
-	return p.current_token.type == Keyword.EXPORT
+	return p.current_token.type == Shell.EXPORT
 }
 
 // parse_variable_export -> EXPORT IDENTIFIER = IDENTIFIER
@@ -87,8 +87,23 @@ parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 	return var, e.no_error()
 }
 
+BuiltinCmd :: struct {
+	name: string,
+}
+
+is_builtin_cmd :: proc(p: ^Parser) -> bool {
+	_, ok := p.current_token.type.(Keyword)
+	return ok
+}
+
+parse_builtin_cmd :: proc(p: ^Parser) -> (cmd: BuiltinCmd, err: e.ErrorResult) {
+	cmd.name = p.current_token.literal
+	return cmd, e.no_error()
+}
+
 ShellProgram :: union {
 	Variable,
+	BuiltinCmd,
 }
 
 parse_shell_input :: proc(p: ^Parser) -> (program: ShellProgram, err: e.ErrorResult) {
@@ -104,6 +119,11 @@ parse_shell_input :: proc(p: ^Parser) -> (program: ShellProgram, err: e.ErrorRes
 		if is_variable(p) {
 			return parse_variable(p)
 		}
+
+		if is_builtin_cmd(p) {
+			return parse_builtin_cmd(p)
+		}
+
 		break
 	}
 

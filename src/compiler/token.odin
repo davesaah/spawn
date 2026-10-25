@@ -4,7 +4,6 @@ import "core:reflect"
 
 Keyword :: enum {
 	EXIT,
-	EXPORT,
 	HISTORY,
 }
 
@@ -16,6 +15,7 @@ Symbol :: enum {
 }
 
 Shell :: enum {
+	EXPORT,
 	IDENTIFIER,
 }
 
@@ -42,7 +42,7 @@ lookup :: proc(s: string, p: int) -> TokenType {
 	case "history":
 		return Keyword.HISTORY
 	case "export":
-		return Keyword.EXPORT
+		return Shell.EXPORT
 	case:
 		return Shell.IDENTIFIER
 	}

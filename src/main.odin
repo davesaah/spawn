@@ -61,13 +61,5 @@ main :: proc() {
 		defer {
 			fmt.printfln("%v", shell_program)
 		}
-
-		switch line {
-		case "exit":
-			os.exit(0)
-		case "history":
-			conf.display_history(history_file)
-			continue
-		}
 	}
 }
