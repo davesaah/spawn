@@ -30,7 +30,7 @@ no_error :: proc() -> ErrorResult {
 syntax_error :: proc(ctx: string) -> ErrorResult {
 	return ErrorResult {
 		type = ErrorKind.SYNTAX_ERROR,
-		msg = "variable cannot start with a number",
+		msg = "variable name is invalid. must be letters and underscores only",
 		ctx = ctx,
 	}
 }

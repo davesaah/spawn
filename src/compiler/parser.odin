@@ -31,8 +31,22 @@ Variable :: struct {
 	exported: bool,
 }
 
-is_number :: proc(c: byte) -> bool {
-	return (c >= '0' && c <= '9') || (c == '.')
+is_valid_var_name :: proc(t: Token) -> bool {
+	if t.type != Shell.IDENTIFIER {
+		return false
+	}
+
+	if len(t.literal) == 0 {
+		return false
+	}
+
+	is_valid :: proc(c: rune) -> bool {
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+	}
+
+	bad_index := strings.index_proc(t.literal, is_valid, false)
+	return bad_index == -1
+
 }
 
 is_variable_assignment :: proc(p: ^Parser) -> bool {
@@ -41,14 +55,12 @@ is_variable_assignment :: proc(p: ^Parser) -> bool {
 
 // parse_variable_assignment -> IDENTIFIER = IDENTIFIER
 parse_variable_assignment :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
-	var.exported = false
-	var.name = p.current_token.literal // current_token is IDENTIFIER
-
-	// variable cannot start with a number
-
-	if is_number(var.name[0]) {
+	if !is_valid_var_name(p.current_token) {
 		return {}, e.syntax_error(ctx = p.current_token.literal)
 	}
+
+	var.exported = false
+	var.name = p.current_token.literal // current_token is IDENTIFIER
 
 	parse_next_token(p) // current_token is EQUALS
 	parse_next_token(p) // current_token is IDENTIFIER
@@ -81,10 +93,10 @@ parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 	// current_token is DOLLAR
 	parse_next_token(p) // current_token is IDENTIFIER
 
-	var.name = p.current_token.literal
-	if is_number(var.name[0]) {
+	if is_valid_var_name(p.current_token) {
 		return {}, e.syntax_error(ctx = p.current_token.literal)
 	}
+	var.name = p.current_token.literal
 
 	return var, e.no_error()
 }
@@ -113,8 +125,6 @@ parse_shell_cmd :: proc(
 ) {
 	cmd.command = strings.clone(p.current_token.literal, allocator)
 	shell_args_init(&cmd, allocator)
-
-	// parse_next_token(p) // move to next token
 
 	for p.next_token.type != Symbol.EOF {
 		var: Variable
