@@ -3,6 +3,7 @@ package compiler
 import e "../errors"
 import "core:mem"
 import "core:strings"
+import "core:unicode"
 
 Parser :: struct {
 	lexer:         ^Lexer,
@@ -31,6 +32,10 @@ Variable :: struct {
 	exported: bool,
 }
 
+is_valid_varchar :: proc(c: rune) -> bool {
+	return unicode.is_alpha(c) || c == '_' || unicode.is_digit(c)
+}
+
 is_valid_var_name :: proc(t: Token) -> bool {
 	if t.type != Shell.IDENTIFIER {
 		return false
@@ -40,11 +45,11 @@ is_valid_var_name :: proc(t: Token) -> bool {
 		return false
 	}
 
-	is_valid :: proc(c: rune) -> bool {
-		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+	if unicode.is_digit(rune(t.literal[0])) {
+		return false
 	}
 
-	bad_index := strings.index_proc(t.literal, is_valid, false)
+	bad_index := strings.index_proc(t.literal, is_valid_varchar, false)
 	return bad_index == -1
 
 }
@@ -93,7 +98,7 @@ parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 	// current_token is DOLLAR
 	parse_next_token(p) // current_token is IDENTIFIER
 
-	if is_valid_var_name(p.current_token) {
+	if !is_valid_var_name(p.current_token) {
 		return {}, e.syntax_error(ctx = p.current_token.literal)
 	}
 	var.name = p.current_token.literal

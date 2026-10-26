@@ -31,7 +31,9 @@ no_error :: proc() -> ErrorResult {
 syntax_error :: proc(ctx: string) -> ErrorResult {
 	return ErrorResult {
 		type = ErrorKind.SYNTAX_ERROR,
-		msg = "variable name is invalid. must be letters and underscores only",
+		msg = "variable name is invalid.\n" +
+		"\t1. Must begin with letters and underscores only.\n" +
+		"\t2. Must contain letters, numbers and underscores only.",
 		ctx = ctx,
 	}
 }
