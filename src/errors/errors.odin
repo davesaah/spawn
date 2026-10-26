@@ -1,6 +1,7 @@
 package errors
 
 import "core:fmt"
+import "core:mem"
 import "core:os"
 import "core:sys/posix"
 
@@ -54,12 +55,12 @@ not_set_error :: proc(ctx: string) -> ErrorResult {
 	}
 }
 
-get_error_msg :: proc(err: ^ErrorResult) -> string {
+get_error_msg :: proc(err: ^ErrorResult, temp_alloc: mem.Allocator) -> string {
 	#partial switch t in err.type {
 	case posix.Errno:
-		return fmt.tprintf("%s\ncontext: %s", posix.strerror(t), err.ctx)
+		return fmt.aprintf("%s\ncontext: %s", posix.strerror(t), err.ctx, allocator = temp_alloc)
 	case os.Error:
-		return fmt.tprintf("%s\ncontext: %s", os.error_string(t), err.ctx)
+		return fmt.aprintf("%s\ncontext: %s", os.error_string(t), err.ctx, allocator = temp_alloc)
 	}
-	return fmt.tprintf("%s\ncontext: %s", err.msg, err.ctx)
+	return fmt.aprintf("%s\ncontext: %s", err.msg, err.ctx, allocator = temp_alloc)
 }

@@ -10,10 +10,12 @@ import "core:strings"
 import e "errors"
 
 main :: proc() {
-	main_stack_buffer: [16 * mem.Kilobyte]byte
+	main_stack_buffer: [32 * mem.Kilobyte]byte
 	main_arena: mem.Arena
 	mem.arena_init(&main_arena, main_stack_buffer[:])
 	main_alloc := mem.arena_allocator(&main_arena)
+
+	context.allocator = main_alloc // ensures all implicit allocations are inside main_alloc
 
 	// loop arena: its backing buffer comes from the main arena
 	loop_buffer, _ := make([]byte, 8 * mem.Kilobyte, main_alloc)
@@ -29,12 +31,12 @@ main :: proc() {
 
 	history_path, p_err := conf.initialize_history(sys_info.homedir, main_alloc)
 	if p_err.type != e.ErrorKind.NONE {
-		fmt.eprintfln("[unable to initialize history] %s", e.get_error_msg(&p_err))
+		fmt.eprintfln("[unable to initialize history] %s", e.get_error_msg(&p_err, loop_alloc))
 		os.exit(1)
 	}
 
 	history_file, h_err := os.open(
-		fmt.tprintf("%s/history", history_path),
+		fmt.aprintf("%s/history", history_path, allocator = main_alloc),
 		os.File_Flags{.Create, .Append, .Write, .Read},
 		os.Permissions_Read_All + os.Permissions{.Write_User},
 	)
@@ -72,7 +74,7 @@ main :: proc() {
 		p := compiler.new_parser(&l)
 		shell_program, parse_err := compiler.parse_shell_input(&p, loop_alloc)
 		if parse_err.type != e.ErrorKind.NONE {
-			fmt.eprintfln("[%s] %s", parse_err.type, e.get_error_msg(&parse_err))
+			fmt.eprintfln("[%s] %s", parse_err.type, e.get_error_msg(&parse_err, loop_alloc))
 			continue
 		}
 
@@ -84,7 +86,7 @@ main :: proc() {
 			temp_alloc = loop_alloc,
 			main_alloc = main_alloc,
 		); exec_err.type != e.ErrorKind.NONE {
-			fmt.eprintfln("[execution failed] %s", e.get_error_msg(&exec_err))
+			fmt.eprintfln("[execution failed] %s", e.get_error_msg(&exec_err, loop_alloc))
 		}
 
 		defer {
