@@ -5,6 +5,7 @@ import "core:reflect"
 BuiltinCmd :: enum {
 	EXIT,
 	HISTORY,
+	CD,
 }
 
 Symbol :: enum {
@@ -43,6 +44,8 @@ lookup :: proc(s: string, p: int) -> TokenType {
 		return BuiltinCmd.HISTORY
 	case "export":
 		return Shell.EXPORT
+	case "cd":
+		return BuiltinCmd.CD
 	case:
 		return Shell.IDENTIFIER
 	}

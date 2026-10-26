@@ -8,6 +8,7 @@ ErrorKind :: enum {
 	NONE,
 	SYNTAX_ERROR,
 	NOT_SET_ERROR,
+	COMMAND_NOT_FOUND,
 	PROCESS_ERROR,
 }
 
@@ -35,12 +36,12 @@ syntax_error :: proc(ctx: string) -> ErrorResult {
 	}
 }
 
-process_error :: proc(ctx: string) -> ErrorResult {
-	return ErrorResult {
-		type = ErrorKind.PROCESS_ERROR,
-		msg = "process failed to execute",
-		ctx = ctx,
-	}
+cmd_not_found :: proc(ctx: string) -> ErrorResult {
+	return ErrorResult{type = ErrorKind.COMMAND_NOT_FOUND, msg = "command not found", ctx = ctx}
+}
+
+process_error :: proc(msg, ctx: string) -> ErrorResult {
+	return ErrorResult{type = ErrorKind.PROCESS_ERROR, msg = msg, ctx = ctx}
 }
 
 not_set_error :: proc(ctx: string) -> ErrorResult {

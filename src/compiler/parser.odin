@@ -101,8 +101,13 @@ parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 	return var, e.no_error()
 }
 
+Command :: union {
+	string,
+	BuiltinCmd,
+}
+
 ShellCmd :: struct {
-	command:  string,
+	command:  Command,
 	argument: [dynamic]string,
 }
 
@@ -112,7 +117,6 @@ shell_args_init :: proc(sh: ^ShellCmd, allocator: mem.Allocator) {
 
 ShellProgram :: union {
 	Variable,
-	BuiltinCmd,
 	ShellCmd,
 }
 
@@ -123,7 +127,12 @@ parse_shell_cmd :: proc(
 	cmd: ShellCmd,
 	err: e.ErrorResult,
 ) {
-	cmd.command = strings.clone(p.current_token.literal, allocator)
+	if command, ok := p.current_token.type.(BuiltinCmd); ok {
+		cmd.command = command
+	} else {
+		cmd.command = strings.clone(p.current_token.literal, allocator)
+	}
+
 	shell_args_init(&cmd, allocator)
 
 	for p.next_token.type != Symbol.EOF {
@@ -169,10 +178,6 @@ parse_shell_input :: proc(
 
 		if is_variable(p) {
 			return parse_variable(p)
-		}
-
-		if cmd, ok := p.current_token.type.(BuiltinCmd); ok {
-			return cmd, e.no_error()
 		}
 
 		return parse_shell_cmd(p, allocator)

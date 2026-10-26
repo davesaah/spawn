@@ -14,6 +14,8 @@ set_exported_variable :: proc(v: ^Variable) -> e.ErrorResult {
 }
 
 get_variable :: proc(v: ^Variable, allocator: mem.Allocator) -> e.ErrorResult {
+	// TODO: extract env from path variable
+	// e.g. $HOME/Downloads -> /userhome/Downloads
 	value := os.get_env(v.name, allocator)
 	if len(value) == 0 {
 		return e.not_set_error(v.name)
