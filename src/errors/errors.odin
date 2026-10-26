@@ -8,6 +8,7 @@ ErrorKind :: enum {
 	NONE,
 	SYNTAX_ERROR,
 	NOT_SET_ERROR,
+	PROCESS_ERROR,
 }
 
 ErrorType :: union {
@@ -30,6 +31,14 @@ syntax_error :: proc(ctx: string) -> ErrorResult {
 	return ErrorResult {
 		type = ErrorKind.SYNTAX_ERROR,
 		msg = "variable cannot start with a number",
+		ctx = ctx,
+	}
+}
+
+process_error :: proc(ctx: string) -> ErrorResult {
+	return ErrorResult {
+		type = ErrorKind.PROCESS_ERROR,
+		msg = "process failed to execute",
 		ctx = ctx,
 	}
 }

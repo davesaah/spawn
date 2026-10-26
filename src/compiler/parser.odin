@@ -114,7 +114,9 @@ parse_shell_cmd :: proc(
 	cmd.command = strings.clone(p.current_token.literal, allocator)
 	shell_args_init(&cmd, allocator)
 
-	for p.current_token.type != Symbol.EOF {
+	// parse_next_token(p) // move to next token
+
+	for p.next_token.type != Symbol.EOF {
 		var: Variable
 
 		parse_next_token(p)

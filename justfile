@@ -11,3 +11,6 @@ run: build
 release:
     @mkdir -p build/bin
     @odin build src -out:build/bin/spawn
+
+install: release
+    @cp build/bin/spawn ~/.local/bin

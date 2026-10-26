@@ -10,13 +10,13 @@ import "core:strings"
 import e "errors"
 
 main :: proc() {
-	main_stack_buffer: [1024]byte // 1KB
+	main_stack_buffer: [8 * mem.Kilobyte]byte
 	main_arena: mem.Arena
 	mem.arena_init(&main_arena, main_stack_buffer[:])
 	main_alloc := mem.arena_allocator(&main_arena)
 
 	// loop arena: its backing buffer comes from the main arena
-	loop_buffer, _ := make([]byte, 512, main_alloc) // 500 B
+	loop_buffer, _ := make([]byte, 4 * mem.Kilobyte, main_alloc)
 	loop_arena: mem.Arena
 	mem.arena_init(&loop_arena, loop_buffer)
 	loop_alloc := mem.arena_allocator(&loop_arena)
@@ -64,7 +64,7 @@ main :: proc() {
 			continue
 		}
 
-		if exec_err := compiler.execute(&shell_program, history_file);
+		if exec_err := compiler.execute(&shell_program, history_file, loop_alloc);
 		   exec_err.type != e.ErrorKind.NONE {
 			fmt.eprintfln("[execution failed] %s", e.get_error_msg(&exec_err))
 		}
