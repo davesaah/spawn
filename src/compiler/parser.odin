@@ -181,10 +181,6 @@ parse_shell_input :: proc(
 			return parse_variable_export(p)
 		}
 
-		if is_variable(p) {
-			return parse_variable(p)
-		}
-
 		return parse_shell_cmd(p, allocator)
 	}
 
