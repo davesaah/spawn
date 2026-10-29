@@ -98,7 +98,7 @@ A shell program in spawn can either be:
 There are two kinds of variables spawn supports:
 
 1. Exported variables: the values persists to child process.
-2. Local variables **(planned)**: the values are local to the current process.
+2. Local variables: the values are local to the current process.
 
 ### Shell Commands
 

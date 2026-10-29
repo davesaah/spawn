@@ -12,6 +12,7 @@ execute :: proc(
 	history_file: ^os.File,
 	process_descriptor: ^os.Process_Desc,
 	homedir: string,
+	variables: ^map[string]string,
 	temp_alloc: mem.Allocator,
 	main_alloc: mem.Allocator,
 ) -> e.ErrorResult {
@@ -19,6 +20,8 @@ execute :: proc(
 	case Variable:
 		if v.exported {
 			return set_exported_variable(&v)
+		} else {
+			set_local_variable(&v, variables)
 		}
 	case ShellCmd:
 		switch t in v.command {

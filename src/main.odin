@@ -10,7 +10,7 @@ import "core:strings"
 import e "errors"
 
 main :: proc() {
-	main_stack_buffer: [32 * mem.Kilobyte]byte
+	main_stack_buffer: [100 * mem.Kilobyte]byte
 	main_arena: mem.Arena
 	mem.arena_init(&main_arena, main_stack_buffer[:])
 	main_alloc := mem.arena_allocator(&main_arena)
@@ -58,6 +58,9 @@ main :: proc() {
 		stderr      = os.stderr,
 	}
 
+	// local variables
+	variables := make(map[string]string, 1024, main_alloc)
+
 	for {
 		defer free_all(loop_alloc)
 
@@ -72,7 +75,7 @@ main :: proc() {
 
 		l := compiler.new_lexer(line)
 		p := compiler.new_parser(&l)
-		shell_program, parse_err := compiler.parse_shell_input(&p, loop_alloc)
+		shell_program, parse_err := compiler.parse_shell_input(&p, &variables, loop_alloc)
 		if parse_err.type != e.ErrorKind.NONE {
 			fmt.eprintfln("[%s] %s", parse_err.type, e.get_error_msg(&parse_err, loop_alloc))
 			continue
@@ -83,6 +86,7 @@ main :: proc() {
 			history_file,
 			&process_descriptor,
 			sys_info.homedir,
+			&variables,
 			temp_alloc = loop_alloc,
 			main_alloc = main_alloc,
 		); exec_err.type != e.ErrorKind.NONE {

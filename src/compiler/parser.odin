@@ -127,6 +127,7 @@ ShellProgram :: union {
 
 parse_shell_cmd :: proc(
 	p: ^Parser,
+	m: ^map[string]string,
 	allocator: mem.Allocator,
 ) -> (
 	cmd: ShellCmd,
@@ -151,7 +152,7 @@ parse_shell_cmd :: proc(
 				return {}, err
 			}
 
-			if err := get_variable(&var, allocator); err.type != e.ErrorKind.NONE {
+			if err := get_variable(&var, m, allocator); err.type != e.ErrorKind.NONE {
 				return {}, err
 			}
 
@@ -167,6 +168,7 @@ parse_shell_cmd :: proc(
 
 parse_shell_input :: proc(
 	p: ^Parser,
+	m: ^map[string]string,
 	allocator: mem.Allocator,
 ) -> (
 	program: ShellProgram,
@@ -181,7 +183,7 @@ parse_shell_input :: proc(
 			return parse_variable_export(p)
 		}
 
-		return parse_shell_cmd(p, allocator)
+		return parse_shell_cmd(p, m, allocator)
 	}
 
 	return {}, e.no_error()
