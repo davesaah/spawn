@@ -4,9 +4,9 @@
 
 - Keep all memory allocations on the stack.
 - Avoid all use of global variables.
-- Allocations for entire project is set to 32 KB.
+- Allocations for entire project is set to 100 KB.
 - Allocations for loop context is set to 8 KB.
-- Loop allocations are from main allocation context and freed independently. This means, the 8 KB is from the 32 KB, not separate from it.
+- Loop allocations are from main allocation context and freed independently. This means, the 8 KB is from the 100 KB, not separate from it.
 
 ## Processing User Input
 
@@ -58,7 +58,7 @@ command             = built_in_cmd | word ;
 
 built_in_cmd        = "exit" | "cd" | "history" ;
 
-argument            = word ;
+argument            = word , { "|" shell_cmd } ;
 
 value               = { word_char } ;
 
@@ -122,4 +122,11 @@ It is available to allow many other keybinds.
 
 ## I/O Redirections (Planned)
 
-## Interprocess Communication (Planned)
+## Interprocess Communication
+
+- Communication is done via pipes.
+- The pipe syscall creates a pair of file descriptors: the read end and the write end.
+- For a pipeline of $N$ commands, $N-1$ pipes are needed. Consequently, the number of file descriptors are $(N-1)*2$.
+- Pipes can only sit between shell commands. E.g. `a | b | c`.
+  - pipe1[r1, w1]: `a` writes to `w1`, `b` reads from `r1`.
+  - pipe1[r2, w2]: `b` writes to `w2`, `c` reads from `r2`.

@@ -72,9 +72,7 @@ main :: proc() {
 			}
 		}
 
-		l := compiler.new_lexer(line)
-		p := compiler.new_parser(&l)
-		shell_program, parse_err := compiler.parse_shell_input(&p, &variables, loop_alloc)
+		shell_program, parse_err := compiler.parse_shell_input(line, &variables, loop_alloc)
 		if parse_err.type != e.ErrorKind.NONE {
 			fmt.eprintfln("[%s] %s", parse_err.type, e.get_error_msg(&parse_err, loop_alloc))
 			continue

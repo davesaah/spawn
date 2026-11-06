@@ -93,6 +93,12 @@ is_variable :: proc(p: ^Parser) -> bool {
 	return p.current_token.type == Symbol.DOLLAR && p.next_token.type == Shell.IDENTIFIER
 }
 
+is_pipeline :: proc(l: ^Lexer, allocator: mem.Allocator) -> (bool, []string) {
+	ok := strings.count(l.input, "|") != 0
+	cmd_list, _ := strings.split(l.input, "|", allocator)
+	return ok, cmd_list
+}
+
 // parse_variable -> $IDENTIFIER
 parse_variable :: proc(p: ^Parser) -> (var: Variable, err: e.ErrorResult) {
 	// current_token is DOLLAR
@@ -116,6 +122,14 @@ ShellCmd :: struct {
 	argument: [dynamic]string,
 }
 
+Pipeline :: struct {
+	cmds: [dynamic]ShellCmd,
+}
+
+pipeline_args_init :: proc(p: ^Pipeline, allocator: mem.Allocator) {
+	p.cmds = make([dynamic]ShellCmd, 0, 2, allocator) // set initital capacity to 2
+}
+
 shell_args_init :: proc(sh: ^ShellCmd, allocator: mem.Allocator) {
 	sh.argument = make([dynamic]string, 0, 4, allocator) // set initital capacity to 4
 }
@@ -123,11 +137,12 @@ shell_args_init :: proc(sh: ^ShellCmd, allocator: mem.Allocator) {
 ShellProgram :: union {
 	Variable,
 	ShellCmd,
+	Pipeline,
 }
 
 parse_shell_cmd :: proc(
 	p: ^Parser,
-	m: ^map[string]string,
+	local_env_vars: ^map[string]string,
 	allocator: mem.Allocator,
 ) -> (
 	cmd: ShellCmd,
@@ -152,7 +167,7 @@ parse_shell_cmd :: proc(
 				return {}, err
 			}
 
-			if err := get_variable(&var, m, allocator); err.type != e.ErrorKind.NONE {
+			if err := get_variable(&var, local_env_vars, allocator); err.type != e.ErrorKind.NONE {
 				return {}, err
 			}
 
@@ -166,24 +181,55 @@ parse_shell_cmd :: proc(
 	return cmd, e.no_error()
 }
 
+parse_pipeline :: proc(
+	cmd_list: ^[]string,
+	local_env_vars: ^map[string]string,
+	allocator: mem.Allocator,
+) -> (
+	pipeline: Pipeline,
+	err: e.ErrorResult,
+) {
+	pipeline_args_init(&pipeline, allocator)
+
+	for item in cmd_list {
+		_l := new_lexer(item)
+		_p := new_parser(&_l)
+		cmd, err := parse_shell_cmd(&_p, local_env_vars, allocator)
+		if err.type != e.ErrorKind.NONE {
+			return {}, err
+		}
+
+		append(&pipeline.cmds, cmd)
+	}
+
+	return pipeline, e.no_error()
+}
+
 parse_shell_input :: proc(
-	p: ^Parser,
-	m: ^map[string]string,
+	input: string,
+	local_env_vars: ^map[string]string,
 	allocator: mem.Allocator,
 ) -> (
 	program: ShellProgram,
 	err: e.ErrorResult,
 ) {
+	l := new_lexer(input)
+	p := new_parser(&l)
+
 	if p.current_token.type != Symbol.EOF {
-		if is_variable_assignment(p) {
-			return parse_variable_assignment(p)
+		if is_variable_assignment(&p) {
+			return parse_variable_assignment(&p)
 		}
 
-		if is_variable_export(p) {
-			return parse_variable_export(p)
+		if is_variable_export(&p) {
+			return parse_variable_export(&p)
 		}
 
-		return parse_shell_cmd(p, m, allocator)
+		if ok, cmd_list := is_pipeline(&l, allocator); ok {
+			return parse_pipeline(&cmd_list, local_env_vars, allocator)
+		}
+
+		return parse_shell_cmd(&p, local_env_vars, allocator)
 	}
 
 	return {}, e.no_error()
