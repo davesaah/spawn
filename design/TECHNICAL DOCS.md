@@ -10,7 +10,7 @@
 
 ## Processing User Input
 
-- Handles single line and multi-line **(planned)** input.
+- Handles single line and multi-line input.
 
 ### Stages of Processing User Input
 

@@ -65,8 +65,7 @@ main :: proc() {
 		defer free_all(loop_alloc)
 
 		fmt.print(sys_info.ps1)
-		bytes, _ := bufio.reader_read_slice(&reader, '\n')
-		line := strings.trim_space(string(bytes))
+		line := strings.trim_space(read_command(&reader))
 		defer {
 			if len(line) != 0 {
 				conf.append_history(history_file, line)
@@ -98,4 +97,25 @@ main :: proc() {
 			fmt.printfln("working dir: %v", process_descriptor.working_dir)
 		}
 	}
+}
+
+read_command :: proc(reader: ^bufio.Reader) -> string {
+	sb: strings.Builder
+
+	for {
+		line, _ := bufio.reader_read_string(reader, '\n')
+		defer delete(line)
+
+		trimmed := strings.trim_right(line, " \r\n") // space, return, newline
+
+		if strings.has_suffix(trimmed, "\\") {
+			strings.write_string(&sb, trimmed[:len(trimmed) - 1])
+			continue
+		}
+
+		strings.write_string(&sb, trimmed)
+		break
+	}
+
+	return strings.to_string(sb)
 }
