@@ -25,7 +25,7 @@ execute :: proc(
 		}
 
 	case Pipeline:
-		return run_pipeline(&v, process_descriptor, temp_alloc)
+		return run_pipeline(&v, process_descriptor, temp_alloc, history_file)
 	case ShellCmd:
 		switch t in v.command {
 		case string:
@@ -33,7 +33,7 @@ execute :: proc(
 		case BuiltinCmd:
 			switch t {
 			case .HISTORY:
-				conf.display_history(history_file)
+				conf.display_history(history_file, os.stdout)
 			case .EXIT:
 				os.exit(0)
 			case .CD:
@@ -49,6 +49,7 @@ run_pipeline :: proc(
 	pipeline: ^Pipeline,
 	pd: ^os.Process_Desc,
 	temp_alloc: mem.Allocator,
+	history_file: ^os.File,
 ) -> e.ErrorResult {
 	if len(pipeline.cmds) == 0 {
 		return e.no_error()
@@ -73,30 +74,45 @@ run_pipeline :: proc(
 			}
 		}
 
-		command_buf := make([]string, len(cmd.argument) + 1, temp_alloc)
-		prepare_run_args(command_buf, &cmd)
+		switch type in cmd.command {
+		case string:
+			command_buf := make([]string, len(cmd.argument) + 1, temp_alloc)
+			prepare_run_args(command_buf, &cmd)
 
-		process, p_err := os.process_start(
-			{
-				command = command_buf,
-				working_dir = pd.working_dir,
-				stdin = prev_read if prev_read != nil else os.stdin,
-				stdout = next_write if next_write != nil else os.stdout,
-				stderr = os.stderr,
-				env = pd.env,
-			},
-		)
+			process, p_err := os.process_start(
+				{
+					command = command_buf,
+					working_dir = pd.working_dir,
+					stdin = prev_read if prev_read != nil else os.stdin,
+					stdout = next_write if next_write != nil else os.stdout,
+					stderr = os.stderr,
+					env = pd.env,
+				},
+			)
+
+			if p_err != nil {
+				if next_read != nil {os.close(next_read)}
+				return e.cmd_not_found(fmt.aprintf("%v", cmd, allocator = temp_alloc))
+			}
+
+			append(&processes, process)
+		case BuiltinCmd:
+			#partial switch type {
+			case .HISTORY:
+				output := next_write if next_write != nil else os.stdout
+				conf.display_history(history_file, output)
+			case:
+				return e.process_error(
+					msg = "ipc not supported for this built-in command",
+					ctx = fmt.aprintf("%v", cmd, allocator = temp_alloc),
+				)
+			}
+		}
 
 		// Parent needs to close what the child now owns
 		if prev_read != nil {os.close(prev_read)}
 		if next_write != nil {os.close(next_write)}
 
-		if p_err != nil {
-			if next_read != nil {os.close(next_read)}
-			return e.ErrorResult{type = p_err, ctx = fmt.aprintf("%v", pd, allocator = temp_alloc)}
-		}
-
-		append(&processes, process)
 		prev_read = next_read
 	}
 

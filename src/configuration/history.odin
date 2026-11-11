@@ -25,11 +25,11 @@ append_history :: proc(file: ^os.File, value: string) {
 	fmt.fprintln(file, value)
 }
 
-display_history :: proc(file: ^os.File) {
+display_history :: proc(file: ^os.File, output: ^os.File) {
 	size, _ := os.file_size(file)
 	buf := make([]byte, size)
 	defer delete(buf)
 
 	n, _ := os.read_at(file, buf, 0)
-	fmt.print(string(buf[:n]))
+	fmt.fprint(output, string(buf[:n]))
 }
