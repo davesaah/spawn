@@ -58,9 +58,27 @@ command             = built_in_cmd | word ;
 
 built_in_cmd        = "exit" | "cd" | "history" ;
 
-argument            = word , { "|" shell_cmd } ;
+argument            = word , { "|" shell_cmd } , { io_redirect } ;
 
 value               = { word_char } ;
+
+io_redirect         = io_file
+                    | io_number , io_file
+                    | io_here
+                    | io_number , io_here ;
+
+io_file             = "<" , word                                (* input redirection *)
+                    | ">" , word                                (* output redirection - overwrites *)
+                    | ">>" , word                               (* output redirection - appends *)
+                    | ">&" , { io_number }, { "-" } , word      (* output duplication *)
+                    | "<&" , { io_number }, { "-" } , word      (* input duplication *)
+                    | "<>" , word ;                             (* input and output redirection *)
+
+io_here             = "<<" , word
+                    | "<<-" , word ;
+
+(* 0 -> stdin, 1 -> stdout, 2 -> stderr *)
+io_number           = "0" | "1" | "2" ;
 
 (* Variable names: start with a letter, then letters, digits, underscores *)
 variable_name       = letter , { letter | digit | "_" } ;
@@ -121,6 +139,20 @@ Certain operations can be handled via keybinds. Example:
 It is available to allow many other keybinds.
 
 ## I/O Redirections (Planned)
+
+It allows the user to choose where to get input and send output. The locations of said destinations but a file. By default, the shell works with stdin (standard input) and stdout (standard output).
+
+I/O redirections and IPC (Interprocess Communication) is different:
+
+- Pipes have pre-determined input and output streams for processes.
+- Redirections allow setting specific destinations of input and output streams of a process.
+
+### Types of Supported I/O Redirections
+
+1. Input redirection
+2. Output redirection (overwrite + append)
+3. Input descriptor duplication
+4. Output descriptor duplication
 
 ## Interprocess Communication
 
