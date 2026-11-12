@@ -13,4 +13,5 @@ release:
     @odin build src -out:build/bin/spawn
 
 install: release
-    @cp build/bin/spawn ~/.local/bin
+    @cp build/bin/spawn ~/.local/bin/spawn.new
+    @mv ~/.local/bin/spawn.new ~/.local/bin/spawn
